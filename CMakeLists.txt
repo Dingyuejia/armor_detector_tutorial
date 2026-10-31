@@ -45,25 +45,6 @@ add_executable(armor_aim
 target_link_libraries(armor_aim PRIVATE armor_io)
 target_compile_options(armor_aim PRIVATE -Wall -Wextra -Wpedantic)
 
-# --- 参考实现（默认不构建）----------------------------------------------
-# 同一道题的另一份答案，用来给"这件事到底能做到多好"定一个参照点。
-#   cmake -S . -B build-ref -DBUILD_REFERENCE=ON
-#   build-ref/armor_aim_ref ...
-# 先自己做，卡住了再去读 reference/pipeline_ref.cpp —— 直接抄会跳掉
-# 全部学习过程，而且它的 combined 场景成绩也很差（见 docs/stages.md）。
-option(BUILD_REFERENCE "构建参考实现 armor_aim_ref" OFF)
-if(BUILD_REFERENCE)
-    add_executable(armor_aim_ref
-        reference/main_ref.cpp
-        reference/pipeline_ref.cpp
-        reference/solver_ref.cpp
-        reference/vision_ref.cpp
-        app/options.cpp
-    )
-    target_link_libraries(armor_aim_ref PRIVATE armor_io)
-    target_compile_options(armor_aim_ref PRIVATE -Wall -Wextra -Wpedantic)
-endif()
-
 # --- 测试 ---------------------------------------------------------------
 include(CTest)
 if(BUILD_TESTING)

@@ -9,7 +9,7 @@
 #   SIM_ROOT   rm_aim_sim 的路径（默认 ../rm_aim_sim）
 #   OUT_DIR    输出目录（默认 ./out）
 #   LABEL      结果标签（默认等于场景名）
-#   ARMOR_BIN  换成别的二进制，比如 build-ref/armor_aim_ref
+#   ARMOR_BIN  换成别的二进制（比如你自己另做的版本）
 #   CHANNEL    仿真通道（默认 armorbench，专供跑分，避免和你手起的仿真抢）
 #
 # 跑完 `python3 bench/report.py` 就是一张汇总表。
@@ -30,7 +30,6 @@ CONFIG_SRC="$ROOT/scenarios/$SCENARIO.cfg"
 BIN=${ARMOR_BIN:-"$ROOT/build/armor_aim"}
 if [[ ! -x "$BIN" ]]; then
   echo "先编译: cmake -S . -B build && cmake --build build -j" >&2
-  echo "（参考实现要加 -DBUILD_REFERENCE=ON，然后用 ARMOR_BIN=build-ref/armor_aim_ref）" >&2
   exit 1
 fi
 if [[ ! -f "$CONFIG_SRC" ]]; then
