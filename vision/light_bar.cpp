@@ -41,9 +41,31 @@ std::vector<LightBar> findLightBars(const cv::Mat& binary,
                                     const LightBarConfig& config) {
     // 从 mask 里把每根灯条找出来：轮廓 -> 最小外接旋转矩形 -> isValid 过滤。
     //
+    
+    std::vector<LightBar> bars;
+    if (binary.empty()) {
+        return bars;
+    }
+
+    // findContours 可能修改输入，所以对 mask 的副本操作。
+    cv::Mat work = binary.clone();
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(work, contours, cv::RETR_EXTERNAL,
+                     cv::CHAIN_APPROX_SIMPLE);
+
+    for (const auto& contour : contours) {
+        const cv::RotatedRect rect = cv::minAreaRect(contour);
+        LightBar bar(rect);
+
+        if (bar.isValid(config)) {
+            bars.push_back(bar);
+        }
+    }
     // 输出应当按 x 从小到大排好序。为什么要排序：配对的时候只需要看
     // 右边的候选，而且顺序稳定才能让"第 i 个候选"在两帧之间指同一根灯条。
-    (void)binary;
-    (void)config;
-    return {};
+    std::stable_sort(bars.begin(), bars.end(),
+                     [](const LightBar& lhs, const LightBar& rhs) {
+                         return lhs.center.x < rhs.center.x;
+                     });
+    return bars;
 }

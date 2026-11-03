@@ -74,7 +74,27 @@ std::vector<Armor> matchArmors(const std::vector<LightBar>& bars,
     // 输出按分数从高到低排序。排序顺序是接口的一部分：下游（pipeline）
     // 拿到的 candidate 下标要稳定，否则"第 0 个候选"每帧指不同的板，
     // 你的跟踪器会疯。
-    (void)bars;
-    (void)config;
-    return {};
+        std::vector<Armor> armors;
+
+    // 枚举每一对不同的灯条。i < j 可避免重复配对和灯条与自身配对。
+    for (std::size_t i = 0; i < bars.size(); ++i) {
+        for (std::size_t j = i + 1; j < bars.size(); ++j) {
+            Armor armor(bars[i], bars[j], config);
+
+            // 构造函数会检查几何关系并计算分数。
+            if (armor.isValid()) {
+                armors.push_back(armor);
+            }
+        }
+    }
+
+    // 分数高的候选排前面；stable_sort 让同分候选维持原有顺序。
+    std::stable_sort(
+        armors.begin(), armors.end(),
+        [](const Armor& lhs, const Armor& rhs) {
+            return lhs.score() > rhs.score();
+        });
+
+    return armors;
+
 }
