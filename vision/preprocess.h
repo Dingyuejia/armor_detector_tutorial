@@ -10,7 +10,7 @@
 // 三个动作：
 //   1) HSV 阈值（红色跨 Hue 首尾，需要两段取并集）
 //   2) 对手色通道差（红用 R-B，蓝用 B-R）压掉灰白背景
-//   3) 开/闭运算去掉噪点、补上空洞
+//   3) 闭运算补上灯条内部的小空洞
 // 返回单通道 8U 二值图。
 cv::Mat makeColorMask(const cv::Mat& src, TargetColor color,
                       const PreprocessConfig& config);

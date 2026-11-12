@@ -4,6 +4,40 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+namespace {
+
+std::array<cv::Point2f, 2> lightBarEndpoints(const LightBar& bar) {
+    cv::Point2f vertices[4];
+    bar.rect.points(vertices);
+
+    const auto edgeLengthSquared = [&](int i) {
+        const cv::Point2f edge = vertices[(i + 1) % 4] - vertices[i];
+        return edge.dot(edge);
+    };
+
+    // RotatedRect 的两组对边分别是 0/2 和 1/3；
+    // 灯条端部对应较短的那组边。
+    const int first_edge =
+        edgeLengthSquared(0) <= edgeLengthSquared(1) ? 0 : 1;
+
+    const auto midpoint = [&](int i) {
+        return (vertices[i] + vertices[(i + 1) % 4]) * 0.5F;
+    };
+
+    std::array<cv::Point2f, 2> endpoints{
+        midpoint(first_edge),
+        midpoint(first_edge + 2)
+    };
+
+    // 图像坐标 y 越小越靠上。
+    if (endpoints[0].y > endpoints[1].y) {
+        std::swap(endpoints[0], endpoints[1]);
+    }
+
+    return endpoints;
+}
+
+}  // namespace
 
 Armor::Armor(const LightBar& left, const LightBar& right,
              const ArmorConfig& config)
@@ -60,6 +94,25 @@ cv::Rect Armor::boundingBox() const {
     const cv::Rect l = left_.rect.boundingRect();
     const cv::Rect r = right_.rect.boundingRect();
     return l | r;
+}
+std::array<cv::Point2f, 4> Armor::armorPoints() const {
+    const LightBar* left = &left_;
+    const LightBar* right = &right_;
+
+    // 确保左右按图像中的 x 坐标确定。
+    if (left->center.x > right->center.x) {
+        std::swap(left, right);
+    }
+
+    const auto left_ends = lightBarEndpoints(*left);
+    const auto right_ends = lightBarEndpoints(*right);
+
+    return {
+        left_ends[0],   // 左上
+        right_ends[0],  // 右上
+        right_ends[1],  // 右下
+        left_ends[1]    // 左下
+    };
 }
 
 bool Armor::isValid() const {

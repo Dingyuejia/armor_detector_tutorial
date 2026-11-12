@@ -5,7 +5,7 @@
 #define ARMOR_VISION_ARMOR_H
 
 #include <vector>
-
+#include <array>
 #include <opencv2/core.hpp>
 
 #include "vision/config.h"
@@ -19,6 +19,7 @@ public:
 
     const LightBar& left() const { return left_; }
     const LightBar& right() const { return right_; }
+    std::array<cv::Point2f, 4> armorPoints() const;
 
     double score() const { return score_; }
     cv::Point2f center() const;   // 两根灯条中心的中点
