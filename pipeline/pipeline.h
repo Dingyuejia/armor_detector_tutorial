@@ -10,6 +10,7 @@
 #define ARMOR_PIPELINE_PIPELINE_H
 
 #include <cstddef>
+#include <deque>  
 
 #include "core/types.h"
 #include "vision/detector.h"
@@ -55,6 +56,19 @@ public:
 private:
     PipelineConfig config_;
     ArmorDetector detector_;
+    int fire_ready_frames_ = 0;
+    struct TrackSample {
+        double t = 0.0;
+        double yaw = 0.0;
+        double pitch = 0.0;
+        double distance = 0.0;
+    };
+    std::deque<TrackSample> track_;
+    double yaw_rate_ = 0.0;
+    double pitch_rate_ = 0.0;
+    double frame_dt_ = 0.017;   // 上一帧到这一帧的间隔
+    std::string last_session_;
+
 };
 
 #endif  // ARMOR_PIPELINE_PIPELINE_H
